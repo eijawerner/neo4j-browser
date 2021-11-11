@@ -39,11 +39,7 @@ const description = (
     <div className="links">
       <div className="link">
         <p className="title">Documentation</p>
-        <p className="content">
-          <ManualLink chapter="cypher-manual" page="/">
-            Cypher introduction
-          </ManualLink>
-        </p>
+        <p className="content"></p>
       </div>
       <div className="link">
         <p className="title">Related</p>
@@ -105,17 +101,8 @@ const footer = (
     <div className="col-sm-4">
       <h3>Documentation</h3>
       <ul className="undecorated">
-        <li>
-          <ManualLink chapter="cypher-refcard" page="/">
-            Cypher Refcard
-          </ManualLink>
-        </li>
-        <li>
-          <ManualLink chapter="cypher-manual" page="/">
-            The Cypher chapter
-          </ManualLink>{' '}
-          of the Neo4j Developer Manual
-        </li>
+        <li></li>
+        <li> of the Neo4j Developer Manual</li>
       </ul>
     </div>
   </>

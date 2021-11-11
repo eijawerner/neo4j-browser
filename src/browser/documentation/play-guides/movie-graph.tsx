@@ -840,11 +840,7 @@ RETURN tom, m, coActors, m2, cruise`}
             Developer resources
           </a>
         </li>
-        <li>
-          <ManualLink chapter="cypher-manual" page="/">
-            Neo4j Cypher Manual
-          </ManualLink>
-        </li>
+        <li>hej</li>
       </ul>
     </div>
   </Slide>

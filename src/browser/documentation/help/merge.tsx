@@ -34,18 +34,9 @@ const content = (
       <div className="link">
         <p className="title">Reference</p>
         <p className="content">
-          <ManualLink chapter="cypher-manual" page="/clauses/merge/">
-            MERGE
-          </ManualLink>{' '}
+          {' '}
           manual page
-          <br />
-          <ManualLink
-            chapter="cypher-manual"
-            page="/clauses/merge/#query-merge-on-create-on-match"
-          >
-            ON CREATE and ON MATCH
-          </ManualLink>{' '}
-          manual page
+          <br /> manual page
         </p>
       </div>
       <div className="link">

@@ -319,16 +319,8 @@ RETURN DISTINCT cust.contactName as CustomerName, SUM(o.quantity) AS TotalProduc
           Full Northwind import example
         </DrawerExternalLink>
       </li>
-      <li>
-        <ManualLink chapter="cypher-manual" page="/">
-          Neo4j Cypher Manual
-        </ManualLink>
-      </li>
-      <li>
-        <ManualLink chapter="cypher-refcard" page="/">
-          Cypher Refcard
-        </ManualLink>
-      </li>
+      <li>hej</li>
+      <li>hej</li>
       <li>
         <DrawerExternalLink href="https://neo4j.com/developer/">
           Developer resources

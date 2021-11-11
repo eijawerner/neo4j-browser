@@ -38,11 +38,7 @@ const content = (
     <div className="links">
       <div className="link">
         <p className="title">Reference</p>
-        <p className="content">
-          <ManualLink chapter="cypher-manual" page="/">
-            Cypher introduction
-          </ManualLink>
-        </p>
+        <p className="content"></p>
       </div>
       <div className="link">
         <p className="title">Related</p>

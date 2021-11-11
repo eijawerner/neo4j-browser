@@ -852,16 +852,6 @@ RETURN tom, m, coActors, m2, cruise`}
     <h3>Documentation</h3>
     <ul className="undecorated">
       <li>
-        <ManualLink chapter="cypher-manual" page="/">
-          Neo4j Cypher Manual
-        </ManualLink>
-      </li>
-      <li>
-        <ManualLink chapter="cypher-refcard" page="/">
-          Cypher Refcard
-        </ManualLink>
-      </li>
-      <li>
         <DrawerExternalLink href="https://neo4j.com/developer/">
           Developer resources
         </DrawerExternalLink>

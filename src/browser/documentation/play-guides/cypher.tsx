@@ -262,17 +262,8 @@ RETURN DISTINCT surfer`}
     <div className="col-sm-4">
       <h3>Documentation</h3>
       <ul className="undecorated">
-        <li>
-          <ManualLink chapter="cypher-refcard" page="/">
-            Cypher Refcard
-          </ManualLink>
-        </li>
-        <li>
-          <ManualLink chapter="cypher-manual" page="/">
-            The Cypher chapter
-          </ManualLink>{' '}
-          of the Neo4j Developer Manual
-        </li>
+        <li>hej</li>
+        <li> of the Neo4j Developer Manual</li>
       </ul>
     </div>
   </Slide>

@@ -19,24 +19,46 @@
  */
 
 import React from 'react'
-import { render } from '@testing-library/react'
-import { ManualLink } from 'browser-components/ManualLink'
+import { render, screen } from '@testing-library/react'
+import ManualLink from 'browser-components/ManualLink'
+import configureMockStore from 'redux-mock-store'
+import { Provider } from 'react-redux'
 
-const tests: [Record<string, string | null>, string][] = [
+const mockStore = configureMockStore()
+const store = mockStore({
+  neo4jVersion: ''
+})
+
+function renderWithRedux(children: any) {
+  return render(<Provider store={store}>{children}</Provider>)
+}
+
+const tests: [Record<string, string>, string][] = [
   [
-    { neo4jVersion: null, chapter: 'graph-algorithms', page: '/' },
+    {
+      neo4jVersion: '',
+      chapter: 'graph-algorithms',
+      page: '/',
+      minVersion: ''
+    },
     'https://neo4j.com/docs/graph-algorithms/current/'
   ],
   [
     {
       neo4jVersion: '3.5.12',
       chapter: 'cypher-manual',
-      page: '/schema/constraints/'
+      page: '/schema/constraints/',
+      minVersion: ''
     },
     'https://neo4j.com/docs/cypher-manual/3.5/schema/constraints/'
   ],
   [
-    { neo4jVersion: '4.0.0-beta03mr03', chapter: 'driver-manual', page: '' },
+    {
+      neo4jVersion: '4.0.0-beta03mr03',
+      chapter: 'driver-manual',
+      page: '',
+      minVersion: ''
+    },
     'https://neo4j.com/docs/driver-manual/4.0-preview/'
   ],
   [
@@ -58,17 +80,27 @@ const tests: [Record<string, string | null>, string][] = [
     'https://neo4j.com/docs/driver-manual/4.0-preview/'
   ],
   [
-    { chapter: 'driver-manual', page: '/', minVersion: '3.5.0' },
+    {
+      neo4jVersion: '',
+      chapter: 'driver-manual',
+      page: '/',
+      minVersion: '3.5.0'
+    },
     'https://neo4j.com/docs/driver-manual/3.5/'
   ]
 ]
 
 test.each(tests)('Render correct url for props %o', (props, expected) => {
-  const { getByText } = render(
-    <ManualLink {...props}>link to manual</ManualLink>
+  renderWithRedux(
+    <ManualLink
+      chapter={props.chapter}
+      page={props.page}
+      minVersion={props.minVersion}
+      text={'link to manual'}
+    />
   )
 
-  const url = getByText('link to manual').getAttribute('href')
+  const url = screen.getByText('link to manual').getAttribute('href')
   expect(url).toEqual(expected)
 })
 
@@ -99,12 +131,28 @@ const movedPages: [Record<string, string>, Record<string, string>][] = [
 test.each(movedPages)(
   'Render correct url for moved page %o',
   (props, expected) => {
-    const { getByText } = render(
-      <ManualLink chapter="cypher-manual" {...props}>
-        link to manual
-      </ManualLink>
+    renderWithRedux(
+      <ManualLink
+        chapter="cypher-manual"
+        page={props.page}
+        minVersion={props.minVersion}
+        text={'link to manual'}
+      />
     )
-    const url = getByText(expected.text).getAttribute('href')
+    const url = screen.getByText(expected.text).getAttribute('href')
     expect(url).toEqual(expected.url)
   }
 )
+
+test('should not console error', () => {
+  renderWithRedux(
+    <ManualLink
+      chapter="cypher-manual"
+      page={'/'}
+      minVersion={''}
+      text={'link to manual'}
+    />
+  )
+  const url = screen.getByText('link to manual').getAttribute('href')
+  expect(url).toEqual('https://neo4j.com/docs/cypher-manual/current/')
+})

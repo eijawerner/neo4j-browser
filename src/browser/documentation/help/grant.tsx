@@ -34,22 +34,8 @@ const content = (
       <div className="link">
         <p className="title">Reference</p>
         <p className="content">
-          <ManualLink
-            chapter="cypher-manual"
-            page="/administration/security/subgraph/#administration-security-subgraph-introduction"
-            minVersion="4.0.0"
-          >
-            Subgraph security
-          </ManualLink>{' '}
           manual page
           <br />
-          <ManualLink
-            chapter="cypher-manual"
-            page="/administration/security/administration/#administration-security-administration-database-privileges"
-            minVersion="4.0.0"
-          >
-            Database administration
-          </ManualLink>{' '}
           manual page
         </p>
       </div>

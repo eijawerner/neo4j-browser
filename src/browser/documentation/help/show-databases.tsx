@@ -33,16 +33,7 @@ const content = (
     <div className="links">
       <div className="link">
         <p className="title">Reference</p>
-        <p className="content">
-          <ManualLink
-            chapter="cypher-manual"
-            page="/administration/databases/#administration-databases-show-databases"
-            minVersion="4.0.0"
-          >
-            SHOW DATABASES
-          </ManualLink>{' '}
-          manual page
-        </p>
+        <p className="content"> manual page</p>
       </div>
       <div className="link">
         <p className="title">Related</p>

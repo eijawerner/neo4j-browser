@@ -58,11 +58,7 @@ const content = (
       <h4>Operators</h4>
       <p>
         Each Operator is displayed as a rectangle with its name in the top-left
-        corner. See the{' '}
-        <ManualLink chapter="cypher-manual" page="/execution-plans/">
-          operators manual page
-        </ManualLink>{' '}
-        for a description of what each operator does.
+        corner. See the for a description of what each operator does.
       </p>
       <h4>Pipes</h4>
       <p>
@@ -154,12 +150,7 @@ const content = (
         <tbody>
           <tr>
             <th>Reference:</th>
-            <td>
-              <ManualLink chapter="cypher-manual" page="/execution-plans/">
-                Execution Plans
-              </ManualLink>{' '}
-              manual page
-            </td>
+            <td> manual page</td>
           </tr>
           <tr>
             <th>Related:</th>

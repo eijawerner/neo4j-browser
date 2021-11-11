@@ -188,11 +188,7 @@ const slides = [
         <li>
           <a play-topic="cypher">Cypher</a> - query language
         </li>
-        <li>
-          <ManualLink chapter="cypher-manual" page="/">
-            Neo4j Cypher Manual
-          </ManualLink>
-        </li>
+        <li>hej</li>
       </ul>
     </div>
     <div className="col-sm-4">
