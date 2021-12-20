@@ -17,7 +17,29 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-import d3 from 'd3'
+import * as d3Selection from 'd3-selection'
+import * as d3Dispatch from 'd3-dispatch'
+
+// ref: https://stackoverflow.com/questions/47844765/d3-rebind-in-d3-v4
+// Copies a variable number of methods from source to target.
+const rebind = function(target: any, source: any) {
+  let i = 1, method
+  const n = arguments.length
+  while (++i < n)
+    target[(method = arguments[i])] = d3_rebind(target, source, source[method])
+  return target
+}
+
+// Method is assumed to be a standard D3 getter-setter:
+// If passed with no arguments, gets the value.
+// If passed with arguments, sets the value and returns the target.
+function d3_rebind(target: any, source: any, method: any) {
+  return function() {
+    const value = method.apply(source, arguments)
+    return value === source ? target : value
+  }
+}
+
 export default function clickHandler() {
   const cc = function(selection: any) {
     // euclidean distance
@@ -28,22 +50,24 @@ export default function clickHandler() {
     const tolerance = 5
     let wait: any = null
     selection.on('mousedown', () => {
-      ;((d3.event as Event).target as any).__data__.fixed = true
-      down = d3.mouse(document.body)
-      return (d3.event as Event).stopPropagation()
+      ;((d3Selection.event as Event).target as any).__data__.fixed = true
+      down = d3Selection.mouse(document.body)
+      return (d3Selection.event as Event).stopPropagation()
     })
 
     return selection.on('mouseup', () => {
-      if (dist(down, d3.mouse(document.body)) > tolerance) {
+      if (dist(down, d3Selection.mouse(document.body)) > tolerance) {
       } else {
         if (wait) {
           window.clearTimeout(wait)
           wait = null
-          return event.dblclick((d3.event as any).target.__data__)
+          return d3Selection.event.dblclick(
+            (d3Selection.event as any).target.__data__
+          )
         } else {
-          event.click((d3.event as any).target.__data__)
+          d3Selection.event.click((d3Selection.event as any).target.__data__)
           return (wait = window.setTimeout(
-            (_e => () => (wait = null))(d3.event),
+            (_e => () => (wait = null))(d3Selection.event),
             250
           ))
         }
@@ -51,6 +75,7 @@ export default function clickHandler() {
     })
   }
 
-  const event = d3.dispatch('click', 'dblclick')
-  return d3.rebind(cc, event, 'on')
+  const event = d3Dispatch.dispatch('click', 'dblclick')
+  // @ts-ignore
+  return rebind(cc, event, 'on')
 }

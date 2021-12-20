@@ -18,22 +18,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import d3 from 'd3'
+import * as d3Selection from 'd3-selection'
+import * as d3Zoom from 'd3-zoom'
+import * as d3Transition from 'd3-transition'
+import * as d3Interpolate from 'd3-interpolate'
+import * as d3Drag from 'd3-drag'
 import NeoD3Geometry from './graphGeometry'
 import * as vizRenderers from '../renders/init'
 import { menu as menuRenderer } from '../renders/menu'
 import vizClickHandler from '../utils/clickHandler'
+import { ForceLayout } from './layout'
+import Graph from 'project-root/src/browser/modules/D3Visualization/lib/visualization/components/graph'
 
 const vizFn = function(
   el: any,
   measureSize: any,
-  graph: any,
-  layout: any,
+  graph: Graph,
+  layout: ForceLayout,
   style: any
 ) {
   const viz: any = { style }
-
-  const root = d3.select(el)
+  const root = d3Selection.select(el)
   const baseGroup = root.append('g').attr('transform', 'translate(0,0)')
   const rect = baseGroup
     .append('rect')
@@ -72,7 +77,7 @@ const vizFn = function(
   const onNodeDragToggle = (node: any) => viz.trigger('nodeDragToggle', node)
 
   const onRelationshipClick = (relationship: any) => {
-    ;(d3.event as Event).stopPropagation()
+    ;(d3Selection.event as Event).stopPropagation()
     updateViz = false
     return viz.trigger('relationshipClicked', relationship)
   }
@@ -83,33 +88,31 @@ const vizFn = function(
   const onRelMouseOver = (rel: any) => viz.trigger('relMouseOver', rel)
   const onRelMouseOut = (rel: any) => viz.trigger('relMouseOut', rel)
 
-  let zoomLevel = null
+  const zoomLevel = null
 
   const zoomed = function(): any {
     draw = true
-    return container.attr(
-      'transform',
-      `translate(${zoomBehavior.translate()})scale(${zoomBehavior.scale()})`
-    )
+    return container.attr('transform', d3Selection.event.transform)
+    // ref: https://coderwall.com/p/psogia/simplest-way-to-add-zoom-pan-on-d3-js
   }
 
-  const zoomBehavior = d3.behavior
+  const zoomBehavior = d3Zoom
     .zoom()
-    .scaleExtent([0.1, 2])
+    // .scaleExtent([0.1, 2])
     .on('zoom', zoomed)
 
   const interpolateZoom = (translate: any, scale: any) =>
-    d3
+    d3Transition
       .transition()
       .duration(500)
       .tween('zoom', () => {
-        const t = d3.interpolate<number, number>(
-          zoomBehavior.translate(),
+        const t = d3Interpolate.interpolate(
+          d3Selection.event.transform,
           translate
         )
-        const s = d3.interpolate(zoomBehavior.scale(), scale)
+        const s = d3Interpolate.interpolate(d3Selection.event.scale, scale)
         return function(a: number) {
-          zoomBehavior.scale(s(a)).translate(t(a) as [number, number])
+          d3Selection.event.scale(s(a)).translate(t(a) as number)
           return zoomed()
         }
       })
@@ -127,7 +130,7 @@ const vizFn = function(
   }
 
   const zoomClick = function(_element: any) {
-    draw = true
+    /*draw = true
     const limitsReached = { zoomInLimit: false, zoomOutLimit: false }
 
     if (isZoomingIn) {
@@ -147,7 +150,7 @@ const vizFn = function(
         interpolateZoom(zoomBehavior.translate(), zoomLevel)
       }
     }
-    return limitsReached
+    return limitsReached*/
   }
   // Background click event
   // Check if panning is ongoing
@@ -157,14 +160,14 @@ const vizFn = function(
     }
   })
 
-  baseGroup
-    .call(zoomBehavior)
-    .on('dblclick.zoom', null as any)
-    // Single click is not panning
-    .on('click.zoom', () => (draw = false))
-    .on('DOMMouseScroll.zoom', null as any)
-    .on('wheel.zoom', null as any)
-    .on('mousewheel.zoom', null as any)
+  // baseGroup
+  //   .call(zoomBehavior)
+  //   .on('dblclick.zoom', null as any)
+  //   // Single click is not panning
+  //   .on('click.zoom', () => (draw = false))
+  //   .on('DOMMouseScroll.zoom', null as any)
+  //   .on('wheel.zoom', null as any)
+  //   .on('mousewheel.zoom', null as any)
 
   const newStatsBucket = function() {
     const bucket: any = {
@@ -251,14 +254,14 @@ const vizFn = function(
     return (currentStats.lastFrame = now())
   }
 
-  const force = layout.init(render)
+  const force = layout.init(render, graph)
 
   // Add custom drag event listeners
-  force
-    .drag()
-    .on('dragstart.node', (d: any) => onNodeDragToggle(d))
-    // @ts-expect-error ts-migrate(2554) FIXME: Expected 1 arguments, but got 0.
-    .on('dragend.node', () => onNodeDragToggle())
+  // force
+  //   .drag()
+  //   .on('dragstart.node', (d: any) => onNodeDragToggle(d))
+  //   // @ts-expect-error ts-migrate(2554) FIXME: Expected 1 arguments, but got 0.
+  //   .on('dragend.node', () => onNodeDragToggle())
 
   viz.collectStats = function() {
     const latestStats = currentStats
@@ -318,10 +321,10 @@ const vizFn = function(
       .enter()
       .append('g')
       .attr('class', 'node')
-      .call(force.drag)
-      .call(clickHandler)
-      .on('mouseover', onNodeMouseOver)
-      .on('mouseout', onNodeMouseOut)
+    // .call(force.drag)
+    // .call(clickHandler)
+    // .on('mouseover', onNodeMouseOver)
+    // .on('mouseout', onNodeMouseOut)
 
     nodeGroups.classed('selected', (node: any) => node.selected)
 
@@ -361,9 +364,9 @@ const vizFn = function(
   // @ts-expect-error ts-migrate(2339) FIXME: Property 'boundingBox' does not exist on type '{ s... Remove this comment to see the full error message
   viz.boundingBox = () => container.node().getBBox()
 
-  const clickHandler = vizClickHandler()
-  clickHandler.on('click', onNodeClick)
-  clickHandler.on('dblclick', onNodeDblClick)
+  // const clickHandler = vizClickHandler()
+  // clickHandler.on('click', onNodeClick)
+  // clickHandler.on('dblclick', onNodeDblClick)
 
   return viz
 }

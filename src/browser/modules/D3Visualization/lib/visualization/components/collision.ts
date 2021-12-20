@@ -17,11 +17,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-import d3 from 'd3'
+import * as d3Quadtree from 'd3-quadtree'
 
 const collision = {
   avoidOverlap: (nodes: any) => {
-    const q = d3.geom.quadtree(nodes)
+    const q = d3Quadtree.quadtree(nodes)
     return Array.from(nodes).map(n => q.visit(collide(n)))
   }
 }

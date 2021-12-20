@@ -18,6 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 import Renderer from '../components/renderer'
+import { Selection } from 'd3-selection'
 const noop = function() {}
 
 const nodeRingStrokeSize = 8
@@ -32,25 +33,18 @@ const nodeOutline = new Renderer({
       .enter()
       .append('circle')
       .classed('outline', true)
-      .attr({
-        cx: 0,
-        cy: 0
-      })
+      .attr('cx', 0)
+      .attr('cy', 0)
 
-    circles.attr({
-      r(node: any) {
-        return node.radius
-      },
-      fill(node: any) {
-        return viz.style.forNode(node).get('color')
-      },
-      stroke(node: any) {
-        return viz.style.forNode(node).get('border-color')
-      },
-      'stroke-width'(node: any) {
-        return viz.style.forNode(node).get('border-width')
-      }
-    })
+    circles
+      .attr('r', (node: any) => node.radius)
+      .attr('fill', (node: any) => viz.style.forNode(node).get('color'))
+      .attr('stroke', (node: any) =>
+        viz.style.forNode(node).get('border-color')
+      )
+      .attr('stroke-width', (node: any) =>
+        viz.style.forNode(node).get('border-width')
+      )
 
     return circles.exit().remove()
   },
@@ -67,8 +61,8 @@ const nodeCaption = new Renderer({
       .enter()
       .append('text')
       // .classed('caption', true)
-      .attr({ 'text-anchor': 'middle' })
-      .attr({ 'pointer-events': 'none' })
+      .attr('text-anchor', 'middle')
+      .attr('pointer-events', 'none')
 
     text
       .text((line: any) => line.text)
@@ -77,11 +71,9 @@ const nodeCaption = new Renderer({
       .attr('font-size', (line: any) =>
         viz.style.forNode(line.node).get('font-size')
       )
-      .attr({
-        fill(line: any) {
-          return viz.style.forNode(line.node).get('text-color-internal')
-        }
-      })
+      .attr('fill', (line: any) =>
+        viz.style.forNode(line.node).get('text-color-internal')
+      )
 
     return text.exit().remove()
   },
@@ -96,19 +88,17 @@ const nodeIcon = new Renderer({
     text
       .enter()
       .append('text')
-      .attr({ 'text-anchor': 'middle' })
-      .attr({ 'pointer-events': 'none' })
-      .attr({ 'font-family': 'streamline' })
+      .attr('text-anchor', 'middle')
+      .attr('pointer-events', 'none')
+      .attr('font-family', 'streamline')
 
     text
       .text((line: any) => viz.style.forNode(line.node).get('icon-code'))
       .attr('dy', (line: any) => line.node.radius / 16)
       .attr('font-size', (line: any) => line.node.radius)
-      .attr({
-        fill(line: any) {
-          return viz.style.forNode(line.node).get('text-color-internal')
-        }
-      })
+      .attr('fill', (line: any) =>
+        viz.style.forNode(line.node).get('text-color-internal')
+      )
 
     return text.exit().remove()
   },
@@ -125,17 +115,11 @@ const nodeRing = new Renderer({
       .enter()
       .insert('circle', '.outline')
       .classed('ring', true)
-      .attr({
-        cx: 0,
-        cy: 0,
-        'stroke-width': `${nodeRingStrokeSize}px`
-      })
+      .attr('cx', 0)
+      .attr('cy', 0)
+      .attr('stroke-width', `${nodeRingStrokeSize}px`)
 
-    circles.attr({
-      r(node: any) {
-        return node.radius + 4
-      }
-    })
+    circles.attr('r', (node: any) => node.radius + 4)
 
     return circles.exit().remove()
   },
@@ -175,8 +159,8 @@ const relationshipType = new Renderer({
     texts
       .enter()
       .append('text')
-      .attr({ 'text-anchor': 'middle' })
-      .attr({ 'pointer-events': 'none' })
+      .attr('text-anchor', 'middle')
+      .attr('pointer-events', 'none')
 
     texts
       .attr('font-size', (rel: any) =>
@@ -189,7 +173,7 @@ const relationshipType = new Renderer({
     return texts.exit().remove()
   },
 
-  onTick(selection: any, viz: any) {
+  onTick(selection: Selection<any, any, any, any>, viz: any) {
     return selection
       .selectAll('text')
       .attr('x', (rel: any) => rel.arrow.midShaftPoint.x)

@@ -17,28 +17,63 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-import d3 from 'd3'
+import * as d3Force from 'd3-force'
+import * as d3Selection from 'd3-selection'
 import collision from './collision'
 import circularLayout from '../utils/circularLayout'
 import cloneArray from '../utils/arrays'
+import Graph from 'project-root/src/browser/modules/D3Visualization/lib/visualization/components/graph'
 
+export type ForceLayout = {
+  init: any
+}
 const layout = {
-  force: () => {
+  force: (): ForceLayout => {
     return {
-      init: (render: any) => {
+      init: (render: any, graph: Graph) => {
+        console.log('render', render)
+        console.log('graph', graph)
         const forceLayout: any = {}
 
         const linkDistance = 45
 
-        const d3force = d3.layout
-          .force()
-          .linkDistance(
-            (relationship: any) =>
-              relationship.source.radius +
-              relationship.target.radius +
-              linkDistance
-          )
-          .charge(-1000)
+        const nodesArray = cloneArray(graph.nodes())
+        console.log('original nodesArray[0].x', nodesArray[0].x)
+        const d3force: d3Force.Simulation<any, any> = d3Force
+          .forceSimulation(nodesArray)
+          .force('collide', d3Force.forceCollide(9))
+        //   .force(
+        // 'link',
+        // d3Force
+        //   .forceLink()
+        //   .distance(
+        //     (relationship: any) =>
+        //       relationship.source.radius +
+        //       relationship.target.radius +
+        //       linkDistance
+        //   )
+        // .strength(-1000)
+        // ) // ref https://stackoverflow.com/questions/62756923/d3-js-upgrading-force-layout-from-v3-to-v4
+
+        d3force.on('tick', () => {
+          console.log('tick nodesArray[0].x', nodesArray[0].x)
+          d3Selection
+            .select('svg')
+            .select('g.layer.nodes')
+            .selectAll('g.node')
+            .data(nodesArray, (d: any) => d.id)
+          // d3Selection.select('svg')
+          //     .selectAll('circle')
+          //     .data(nodesArray)
+          //     .join('circle')
+          //     .attr('r', 5)
+          //     .attr('cx', function(d) {
+          //       return d.x
+          //     })
+          //     .attr('cy', function(d) {
+          //       return d.y
+          //     });
+        })
 
         const newStatsBucket = function() {
           const bucket = {
@@ -67,6 +102,7 @@ const layout = {
 
           const d3Tick = d3force.tick
           return (d3force.tick = function() {
+            console.log('tick')
             const startTick = now()
             let step = maxStepsPerTick
             while (step-- && now() - startTick < maxComputeTime) {
@@ -93,7 +129,8 @@ const layout = {
             (pair: any) => pair.relationships[0]
           )
 
-        forceLayout.update = function(graph: any, size: any) {
+        forceLayout.update = function(graph: Graph, size: any) {
+          console.log('update')
           const nodes = cloneArray(graph.nodes())
           const relationships = oneRelationshipPerPairOfNodes(graph)
 
@@ -104,14 +141,22 @@ const layout = {
           }
           circularLayout(nodes, center, radius)
 
-          return d3force
-            .nodes(nodes)
-            .links(relationships)
-            .size(size)
-            .start()
+          return d3force.nodes(nodes).force(
+            'link',
+            d3Force
+              .forceLink(relationships)
+              .distance(
+                (relationship: any) =>
+                  relationship.source.radius +
+                  relationship.target.radius +
+                  linkDistance
+              )
+          )
+          // .size(size) // TODO: replace with x and y
         }
 
-        forceLayout.drag = d3force.drag
+        // forceLayout.drag = d3force.drag
+        forceLayout.nodesArray = nodesArray
         return forceLayout
       }
     }

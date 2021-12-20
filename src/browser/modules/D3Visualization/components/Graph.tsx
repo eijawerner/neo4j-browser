@@ -161,7 +161,11 @@ export class GraphComponent extends Component<any, State> {
   render() {
     return (
       <StyledSvgWrapper>
-        <svg className="neod3viz" ref={this.graphInit.bind(this)} />
+        <svg
+          id="neod3viz"
+          className="neod3viz"
+          ref={this.graphInit.bind(this)}
+        />
         {this.zoomButtons()}
       </StyledSvgWrapper>
     )

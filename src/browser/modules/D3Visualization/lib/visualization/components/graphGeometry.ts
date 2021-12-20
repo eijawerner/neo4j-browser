@@ -102,7 +102,7 @@ const fitCaptionIntoCircle = function(node: any, style: any) {
   const fontFamily = 'sans-serif'
   const fontSize = parseFloat(style.forNode(node).get('font-size'))
   const lineHeight = fontSize
-  const measure = (text: any) => measureText(text, fontFamily, fontSize)
+  const measure = (text: string) => measureText(text, fontFamily, fontSize)
 
   const words = captionText.split(' ')
 

@@ -17,7 +17,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-import d3 from 'd3'
+import * as d3Shape from 'd3-shape'
+import * as d3Selection from 'd3-selection'
 import Renderer from '../components/renderer'
 import icons from './d3Icons'
 
@@ -31,7 +32,7 @@ const arc = function(radius?: any, itemNumber?: any, width?: any) {
     ((2 * Math.PI) / numberOfItemsInContextMenu) * (itemNumber - 1)
   const endAngle = startAngle + (2 * Math.PI) / numberOfItemsInContextMenu
   const innerRadius = Math.max(radius + 8, 20)
-  return d3.svg
+  return d3Shape
     .arc()
     .innerRadius(innerRadius)
     .outerRadius(innerRadius + localWidth)
@@ -59,7 +60,7 @@ const attachContextEvent = (
     const result = []
     for (const elem of Array.from(elems)) {
       elem.on('mousedown.drag', () => {
-        ;(d3.event as Event).stopPropagation()
+        ;(d3Selection.event as Event).stopPropagation()
         return null
       })
       elem.on('mouseup', (node: any) => viz.trigger(event, node))
@@ -101,56 +102,49 @@ const createMenuItem = function(
     .append('path')
     .classed(className, true)
     .classed('context-menu-item', true)
-    .attr({
-      d(node: any) {
-        // @ts-expect-error Expected 1-2 arguments, but got 0.ts(2554)
-        return arc(node.radius, itemNumber, 1)()
-      }
-    })
+    // @ts-expect-error Expected 1-2 arguments, but got 0.ts(2554)
+    .attr('d', (node: any) => arc(node.radius, itemNumber, 1)())
 
   const rawSvgIcon = icons[textValue]
+  const parsedSvgIcon = document.importNode(
+    new DOMParser().parseFromString(rawSvgIcon, 'application/xml')
+      .documentElement.firstChild as ChildNode,
+    true
+  )
   const icon = iconPath
     .enter()
-    .appendSVG(rawSvgIcon)
+    .append(parsedSvgIcon)
     .classed(className, true)
     .classed('context-menu-item', true)
-    .attr({
-      transform(node: any) {
-        return `translate(${Math.floor(
+    .attr(
+      'transform',
+      (node: any) =>
+        `translate(${Math.floor(
           // @ts-expect-error ts-migrate(2554) FIXME: Expected 3 arguments, but got 2.
           arc(node.radius, itemNumber).centroid()[0] + (position[0] * 100) / 100
         )},${Math.floor(
           // @ts-expect-error ts-migrate(2554) FIXME: Expected 3 arguments, but got 2.
           arc(node.radius, itemNumber).centroid()[1] + (position[1] * 100) / 100
         )}) scale(0.7)`
-      },
-      color(node: any) {
-        return viz.style.forNode(node).get('text-color-internal')
-      }
-    })
+    )
+    .attr('color', (node: any) =>
+      viz.style.forNode(node).get('text-color-internal')
+    )
 
   attachContextEvent(eventName, [tab, icon], viz, helpValue, rawSvgIcon)
 
   tab
     .transition()
     .duration(200)
-    .attr({
-      d(node: any) {
-        // @ts-expect-error Expected 1-2 arguments, but got 0.ts(2554)
-        return arc(node.radius, itemNumber)()
-      }
-    })
+    // @ts-expect-error Expected 1-2 arguments, but got 0.ts(2554)
+    .attr('d', (node: any) => arc(node.radius, itemNumber)())
 
   path
     .exit()
     .transition()
     .duration(200)
-    .attr({
-      d(node: any) {
-        // @ts-expect-error Expected 1-2 arguments, but got 0.ts(2554)
-        return arc(node.radius, itemNumber, 1)()
-      }
-    })
+    // @ts-expect-error Expected 1-2 arguments, but got 0.ts(2554)
+    .attr('d', (node: any) => arc(node.radius, itemNumber, 1)())
     .remove()
 
   return iconPath.exit().remove()

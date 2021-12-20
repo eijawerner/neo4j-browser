@@ -17,8 +17,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-import d3 from 'd3'
+import * as d3Color from 'd3-color'
+import * as d3Scale from 'd3-scale'
+import * as d3Collection from 'd3-collection'
+import * as d3Format from 'd3-format'
+import * as d3Array from 'd3-array'
+import * as d3Interpolate from 'd3-interpolate'
 import measureText from '../utils/textMeasurement'
+import * as d3Selection from 'd3-selection'
 
 function queryPlan(this: any, element: any) {
   const maxChildOperators = 2 // Fact we know about the cypher compiler
@@ -63,13 +69,13 @@ function queryPlan(this: any, element: any) {
 
   const augment = (color: any) => ({
     color,
-    'border-color': d3.rgb(color).darker(),
-    'text-color-internal': d3.hsl(color).l < 0.7 ? '#FFFFFF' : '#000000'
+    'border-color': d3Color.rgb(color).darker(),
+    'text-color-internal': d3Color.hsl(color).l < 0.7 ? '#FFFFFF' : '#000000'
   })
 
-  const colors = d3.scale
-    .ordinal()
-    .domain(d3.keys(operatorCategories))
+  const colors = d3Scale
+    .scaleOrdinal()
+    .domain(d3Collection.keys(operatorCategories))
     .range(operatorColors)
 
   const color = function(d: any) {
@@ -100,7 +106,7 @@ function queryPlan(this: any, element: any) {
     }
   }
 
-  const formatNumber = d3.format(',.0f')
+  const formatNumber = d3Format.format(',.0f')
 
   const operatorDetails = function(operator: any): any {
     let expression, identifiers, index, left, left1
@@ -278,12 +284,12 @@ function queryPlan(this: any, element: any) {
 
   const layout = function(operators: any[], links: any[]) {
     const costHeight = (function() {
-      const scale = d3.scale
-        .log()
+      const scale = d3Scale
+        .scaleLog()
         .domain([
           1,
           Math.max(
-            d3.max(operators, (operator: any) => operator.DbHits || 0),
+            d3Array.max(operators, (operator: any) => operator.DbHits || 0),
             maxComparableDbHits
           )
         ])
@@ -302,12 +308,12 @@ function queryPlan(this: any, element: any) {
     }
 
     const linkWidth = (function() {
-      const scale = d3.scale
-        .log()
+      const scale = d3Scale
+        .scaleLog()
         .domain([
           1,
           Math.max(
-            d3.max(operators, (operator: any) => rows(operator) + 1),
+            d3Array.max(operators, (operator: any) => rows(operator) + 1),
             maxComparableRows
           )
         ])
@@ -324,7 +330,7 @@ function queryPlan(this: any, element: any) {
       if (operator.costHeight > operatorDetailHeight + operatorPadding) {
         operator.alwaysShowCost = true
       }
-      const childrenWidth = d3.sum(operator.children, linkWidth)
+      const childrenWidth = d3Array.sum(operator.children, linkWidth)
       let tx = (operatorWidth - childrenWidth) / 2
       for (const child of Array.from(operator.children)) {
         ;(child as any).tx = tx
@@ -336,7 +342,7 @@ function queryPlan(this: any, element: any) {
       link.width = linkWidth(link.source)
     }
 
-    const ranks = d3
+    const ranks = d3Collection
       .nest()
       .key((operator: any) => operator.rank)
       .entries(operators)
@@ -344,6 +350,7 @@ function queryPlan(this: any, element: any) {
     let currentY = 0
 
     for (var rank of Array.from(ranks)) {
+      // @ts-ignore
       currentY -= d3.max(rank.values, operatorHeight) + rankMargin
       for (operator of Array.from(rank.values)) {
         operator.x = 0
@@ -351,7 +358,7 @@ function queryPlan(this: any, element: any) {
       }
     }
 
-    let width = d3.max(
+    let width = d3Array.max(
       ranks.map(
         (rank: any) => rank.values.length * (operatorWidth + operatorMargin)
       )
@@ -373,6 +380,7 @@ function queryPlan(this: any, element: any) {
             x0 = operator.x + operatorWidth + operatorMargin
           }
 
+          // @ts-ignore
           dx = x0 - operatorMargin - width
           if (dx > 0) {
             const lastOperator = rank.values[rank.values.length - 1]
@@ -410,10 +418,10 @@ function queryPlan(this: any, element: any) {
                 let item
                 if (operator.children.length) {
                   const x =
-                    d3.sum(
+                    d3Array.sum(
                       operator.children,
-                      (child: any) => linkWidth(child) * center(child)
-                    ) / d3.sum(operator.children, linkWidth)
+                      (child: any) => (linkWidth(child) ?? 1) * center(child)
+                    ) / d3Array.sum(operator.children, linkWidth)
                   item = operator.x += (x - center(operator)) * alpha
                 }
                 result1.push(item)
@@ -459,8 +467,8 @@ function queryPlan(this: any, element: any) {
     }
 
     width =
-      d3.max(operators, (o: any) => o.x) -
-      d3.min(operators, (o: any) => o.x) +
+      d3Array.max(operators, (o: any) => o.x) -
+      d3Array.min(operators, (o: any) => o.x) +
       operatorWidth
 
     return [width, height]
@@ -473,7 +481,7 @@ function queryPlan(this: any, element: any) {
     height: any,
     redisplay: any
   ) {
-    const svg = d3.select(element)
+    const svg = d3Selection.select(element)
 
     svg
       .transition()
@@ -482,7 +490,7 @@ function queryPlan(this: any, element: any) {
       .attr(
         'viewBox',
         [
-          d3.min(operators, (o: any) => o.x) - margin,
+          ((d3Array.min(operators, (o: any) => o.x) ?? 0) as number) - margin,
           -margin - height,
           width + margin * 2,
           height + margin * 2
@@ -492,7 +500,7 @@ function queryPlan(this: any, element: any) {
     const join = (parent: any, children: any) =>
       ((): any[] => {
         const result = []
-        for (const child of Array.from(d3.entries<any>(children))) {
+        for (const child of Array.from(d3Collection.entries<any>(children))) {
           let item
           const selection = parent.selectAll(child.key).data(child.value.data)
           child.value.selections(selection.enter(), selection, selection.exit())
@@ -533,7 +541,7 @@ function queryPlan(this: any, element: any) {
 
                     const sourceY = d.source.y + d.source.height
                     const targetY = d.target.y
-                    const yi = d3.interpolateNumber(sourceY, targetY)
+                    const yi = d3Interpolate.interpolateNumber(sourceY, targetY)
 
                     const curvature = 0.5
                     const control1 = yi(curvature)
@@ -782,7 +790,7 @@ function queryPlan(this: any, element: any) {
                       return update
                         .transition()
                         .attrTween('transform', (d: any, _i: any, a: any) =>
-                          d3.interpolateString(a, rotateForExpand(d))
+                          d3Interpolate.interpolateString(a, rotateForExpand(d))
                         )
                     }
                   },

@@ -17,21 +17,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-import d3 from 'd3'
+import * as d3Selection from 'd3-selection'
 
-const measureUsingCanvas = function(text: any, font: any) {
-  // @ts-expect-error ts-migrate(2683) FIXME: 'this' implicitly has type 'any' because it does n... Remove this comment to see the full error message
-  const canvasSelection = d3.select('canvas#textMeasurementCanvas').data([this])
-  canvasSelection
-    .enter()
-    .append('canvas')
-    .attr('id', 'textMeasurementCanvas')
-    .style('display', 'none')
-
-  const canvas = canvasSelection.node() as HTMLCanvasElement
-  const context = canvas.getContext('2d') as CanvasRenderingContext2D
-  context.font = font
-  return context.measureText(text).width
+// @ts-ignore
+const measureUsingCanvas = function(text: string, font: string) {
+  // // @ts-expect-error ts-migrate(2683) FIXME: 'this' implicitly has type 'any' because it does n... Remove this comment to see the full error message
+  // const canvasSelection = d3Selection.select('canvas#textMeasurementCanvas').data([this])
+  // canvasSelection
+  //   .enter()
+  //   .append('canvas')
+  //   .attr('id', 'textMeasurementCanvas')
+  //   .style('display', 'none')
+  //
+  // const canvas = canvasSelection.node() as HTMLCanvasElement
+  // const context = canvas.getContext('2d') as CanvasRenderingContext2D
+  // context.font = font
+  // return context.measureText(text).width
+  return 50
 }
 
 const cache = function() {
@@ -53,7 +55,7 @@ const cache = function() {
   }
 }
 
-export default function(text: any, fontFamily: any, fontSize: any) {
+export default function(text: string, fontFamily: string, fontSize: number) {
   const font = `normal normal normal ${fontSize}px/normal ${fontFamily}`
   return cache()(text + font, () => measureUsingCanvas(text, font))
 }

@@ -201,7 +201,7 @@ export default class Graph {
     this.nodeMap = {}
     this._nodes = []
     this.relationshipMap = {}
-    return (this._relationships = [])
+    this._relationships = []
   }
 }
 
