@@ -21,8 +21,10 @@ import { D3DragEvent, drag as d3Drag } from 'd3-drag'
 import { easeCubic } from 'd3-ease'
 import { Simulation } from 'd3-force'
 import { BaseType, select as d3Select } from 'd3-selection'
+import * as d3Selection from 'd3-selection'
 import { Transition } from 'd3-transition'
 import { D3ZoomEvent, zoom as d3Zoom } from 'd3-zoom'
+import * as d3Zooming from 'd3-zoom'
 
 import * as vizRenderers from '../renders/init'
 import { nodeMenuRenderer } from '../renders/menu'
@@ -39,6 +41,7 @@ export type VizObj = {
   trigger: (_event: any, ..._args: any[]) => void
   zoomInClick: (el: any) => { zoomInLimit: boolean; zoomOutLimit: boolean }
   zoomOutClick: (el: any) => { zoomInLimit: boolean; zoomOutLimit: boolean }
+  zoomToFitClick: () => void
   boundingBox: () => void
   resize: () => void
   update: (options: {
@@ -47,6 +50,9 @@ export type VizObj = {
     precompute?: boolean
   }) => void
 }
+
+const ZOOM_SCALE_MIN = 0.1
+const ZOOM_SCALE_MAX = 2
 
 const noOp = () => undefined
 const vizFn = function (
@@ -69,13 +75,19 @@ const vizFn = function (
       zoomInLimit: false,
       zoomOutLimit: false
     }),
+    zoomToFitClick: () => {
+      return
+    },
     boundingBox: noOp,
     resize: noOp,
     update: noOp
   }
 
   const root = d3Select(el)
-  const baseGroup = root.append('g').attr('transform', 'translate(0,0)')
+  const baseGroup = root
+    .append('g')
+    .attr('id', 'baseGroup')
+    .attr('transform', 'translate(0,0)')
   const rect = baseGroup
     .append('rect')
     .style('fill', 'none')
@@ -87,7 +99,7 @@ const vizFn = function (
     .attr('height', '100%')
     .attr('transform', 'scale(1)')
 
-  const container = baseGroup.append('g')
+  const container = baseGroup.append('g').attr('id', 'container')
   const geometry = new GraphGeometry(style)
 
   // This flags that a panning is ongoing and won't trigger
@@ -142,6 +154,9 @@ const vizFn = function (
     if (e.shiftKey) {
       e.preventDefault()
 
+      // This is the default implementation of wheelDelta function in d3-zoom v3.0.0
+      // For some reasons typescript complains when trying to get it by calling zoomBehaviour.wheelDelta() instead
+      // but it should be the same
       const delta =
         -e.deltaY * (e.deltaMode === 1 ? 0.05 : e.deltaMode ? 1 : 0.002)
 
@@ -173,8 +188,9 @@ const vizFn = function (
   }
 
   const zoomBehavior = d3Zoom<SVGGElement, unknown>()
-    .scaleExtent([0.1, 2])
+    .scaleExtent([ZOOM_SCALE_MIN, ZOOM_SCALE_MAX])
     .on('zoom', zoomed)
+  // .filter(((event: KeyboardEvent | MouseEvent) => event.shiftKey)) // shift eller musklick i
 
   let isZoomingIn = true
 
@@ -205,14 +221,45 @@ const vizFn = function (
     }
   })
 
+  viz.zoomToFitClick = () => {
+    draw = true
+    isZoomClick = true
+    zoomToFitWholeGraph()
+  }
+
+  const zoomToFitWholeGraph = () => {
+    const bounds = container.node()?.getBBox()
+    const availableWidth = root.node()?.clientWidth
+    const availableHeight = root.node()?.clientHeight
+
+    if (bounds && availableWidth && availableHeight) {
+      const width = bounds.width
+      const height = bounds.height
+
+      if (width === 0 || height === 0) return
+
+      const paddingPercent = 0.95
+      const scale =
+        paddingPercent /
+        Math.max(width / availableWidth, height / availableHeight)
+
+      zoomBehavior.transform(
+        baseGroup,
+        d3Zooming.zoomIdentity
+          .translate(0, 0)
+          .scale(Math.min(scale, ZOOM_SCALE_MAX))
+      )
+    }
+  }
+
   baseGroup
     .call(zoomBehavior)
     .on('dblclick.zoom', null as any)
     // Single click is not panning
-    .on('click.zoom', () => (draw = false))
-    .on('DOMMouseScroll.zoom', handleZoomOnShiftScroll)
-    .on('wheel.zoom', handleZoomOnShiftScroll)
-    .on('mousewheel.zoom', handleZoomOnShiftScroll)
+    .on('click.zoom', null as any) //() => (draw = false))
+  // .on('DOMMouseScroll.zoom', handleZoomOnShiftScroll)
+  // .on('wheel.zoom', handleZoomOnShiftScroll)
+  // .on('mousewheel.zoom', handleZoomOnShiftScroll)
 
   const render = function () {
     geometry.onTick(graph)

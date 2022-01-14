@@ -87,6 +87,12 @@ export class GraphComponent extends Component<GraphProps, GraphState> {
     }
   }
 
+  zoomToFitClicked = () => {
+    if (this.graphView) {
+      this.graphView.zoomToFit()
+    }
+  }
+
   componentDidMount(): void {
     if (this.svgElement != null) {
       // this.initGraphView and this.addInternalRelationships both call this.graph.update()
@@ -166,6 +172,13 @@ export class GraphComponent extends Component<GraphProps, GraphState> {
       offset={this.props.offset}
       isFullscreen={this.props.isFullscreen}
     >
+      <StyledZoomButton
+        className={''}
+        onClick={this.zoomToFitClicked.bind(this)}
+        style={{ color: 'magenta' }}
+      >
+        <ZoomInIcon regulateSize={this.props.isFullscreen ? 2 : 1} />
+      </StyledZoomButton>
       <StyledZoomButton
         className={this.state.zoomInLimitReached ? 'faded zoom-in' : 'zoom-in'}
         onClick={this.zoomInClicked.bind(this)}
