@@ -138,17 +138,6 @@ const vizFn = function (
   const onRelMouseOut = (_event: Event, rel: Relationship) =>
     viz.trigger('relMouseOut', rel)
 
-  const handleZoomOnShiftScroll = (e: WheelEvent) => {
-    if (e.shiftKey) {
-      e.preventDefault()
-
-      const delta =
-        -e.deltaY * (e.deltaMode === 1 ? 0.05 : e.deltaMode ? 1 : 0.002)
-
-      return zoomBehavior.scaleBy(baseGroup, 1 + delta)
-    }
-  }
-
   const zoomed = function (
     e: D3ZoomEvent<SVGGElement, unknown>
   ): Transition<SVGGElement, unknown, null, undefined> {
@@ -210,9 +199,6 @@ const vizFn = function (
     .on('dblclick.zoom', null as any)
     // Single click is not panning
     .on('click.zoom', () => (draw = false))
-    .on('DOMMouseScroll.zoom', handleZoomOnShiftScroll)
-    .on('wheel.zoom', handleZoomOnShiftScroll)
-    .on('mousewheel.zoom', handleZoomOnShiftScroll)
 
   const render = function () {
     geometry.onTick(graph)

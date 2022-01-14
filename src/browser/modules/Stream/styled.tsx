@@ -17,13 +17,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 import styled, { keyframes } from 'styled-components'
-import { dim } from 'browser-styles/constants'
+
 import { StyledFrameButton } from '../../components/buttons'
+import { dim } from 'browser-styles/constants'
 
 export const StyledStream = styled.div`
-  padding: 0 10px;
+  padding: 0 20px;
   display: flex;
   flex-direction: column;
   overflow: auto;
