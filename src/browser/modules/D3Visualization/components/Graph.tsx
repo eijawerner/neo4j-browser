@@ -31,7 +31,11 @@ import {
 } from '../mapper'
 import { StyledSvgWrapper, StyledZoomButton, StyledZoomHolder } from './styled'
 import { VizItem } from './types'
-import { ZoomInIcon, ZoomOutIcon } from 'browser-components/icons/Icons'
+import {
+  ZoomInIcon,
+  ZoomOutIcon,
+  ZoomToFitIcon
+} from 'browser-components/icons/Icons'
 import { BasicNode, BasicRelationship } from 'services/bolt/boltMappings'
 
 type GraphState = { zoomInLimitReached: boolean; zoomOutLimitReached: boolean }
@@ -175,9 +179,8 @@ export class GraphComponent extends Component<GraphProps, GraphState> {
       <StyledZoomButton
         className={''}
         onClick={this.zoomToFitClicked.bind(this)}
-        style={{ color: 'magenta' }}
       >
-        <ZoomInIcon regulateSize={this.props.isFullscreen ? 2 : 1} />
+        <ZoomToFitIcon regulateSize={this.props.isFullscreen ? 2 : 1} />
       </StyledZoomButton>
       <StyledZoomButton
         className={this.state.zoomInLimitReached ? 'faded zoom-in' : 'zoom-in'}

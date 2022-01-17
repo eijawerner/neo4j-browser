@@ -17,7 +17,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 import styled from 'styled-components'
 
 export const legendRowHeight = 32
@@ -235,26 +234,31 @@ export const StyledZoomHolder = styled.div<{
   offset: number
 }>`
   position: ${props => (props.isFullscreen ? 'fixed' : 'absolute')};
+  display: flex;
+  flex-direction: column;
   bottom: 0;
   right: ${props => props.offset}px
-  padding: 6px 6px 0 6px;
   border-left: ${props => props.theme.inFrameBorder};
   border-right: ${props => props.theme.inFrameBorder};
   border-top: ${props => props.theme.inFrameBorder};
   background: ${props => props.theme.frameSidebarBackground};
+  box-shadow: 0px 0px 2px rgba(21, 30, 41, 0.1),
+    0px 1px 2px rgba(21, 30, 41, 0.08), 0px 1px 4px rgba(21, 30, 41, 0.08); // TODO: get box shadow from library?
 `
 
 export const StyledZoomButton = styled.button`
-  display: list-item;
-  list-style-type: none;
-  margin-bottom: 10px;
   border: none;
   color: ${props => props.theme.frameButtonTextColor}
   background: transparent;
   border-color: black;
-  padding: 2px 6px 3px;
+  padding: 10px;
+  line-height: unset; // unset to prevent the icon to be larger due to this
   &:hover {
-    opacity: 0.7;
+    background: rgb(113, 119, 128, 0.1); // TODO: get rgb color from library
+    border-radius: 2px;
+  }
+  &:active {
+    background: rgb(113, 119, 128, 0.3); // TODO: get rgb color from library
   }
   &:focus {
     outline: none;

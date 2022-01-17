@@ -17,42 +17,45 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 import React from 'react'
 import { Icon } from 'semantic-ui-react'
-import { keyframes, css } from 'styled-components'
+import { css, keyframes } from 'styled-components'
+
 import { IconContainer } from './IconContainer'
+import zoomInIcon from 'icons/ZoomInIcon.svg'
+import zoomOutIcon from 'icons/ZoomOutIcon.svg'
+import fitToScreenIcon from 'icons/ZoomToFit.svg'
 import addCircle from 'icons/add-circle.svg'
 import appWindowCode from 'icons/app-window-code.svg'
 import arrowLeft from 'icons/arrow-left.svg'
 import arrowRight from 'icons/arrow-right.svg'
 import backArrow from 'icons/back-arrow.svg'
 import cannyFeedback from 'icons/canny-feedback.svg'
-import upCaret from 'icons/frame-collapse.svg'
-import downCaret from 'icons/frame-expand.svg'
 import cannyNotifications from 'icons/canny-notifications.svg'
-import close from 'icons/frame-close.svg'
 import cloudCheck from 'icons/cloud-check.svg'
 import cloudRemove from 'icons/cloud-remove.svg'
 import cog from 'icons/cog.svg'
 import copy from 'icons/copy.svg'
 import databaseCheck from 'icons/database-check.svg'
-import download from 'icons/save.svg'
-import expand from 'icons/frame-fullscreen.svg'
-import shrink from 'icons/frame-shrink.svg'
+import saveFavorite from 'icons/favorite.svg'
 import file from 'icons/file.svg'
 import folderEmpty from 'icons/folder-empty.svg'
+import close from 'icons/frame-close.svg'
+import upCaret from 'icons/frame-collapse.svg'
+import downCaret from 'icons/frame-expand.svg'
+import expand from 'icons/frame-fullscreen.svg'
+import pin from 'icons/frame-pin.svg'
+import shrink from 'icons/frame-shrink.svg'
 import help from 'icons/help.svg'
+import vizIcon from 'icons/hierarchy-9.svg'
 import monitorPlay from 'icons/monitor-play.svg'
 import navigationMenuVertical from 'icons/navigation-menu-vertical.svg'
 import neo4j from 'icons/neo4j-icon.svg'
-import pin from 'icons/frame-pin.svg'
 import ratingStar from 'icons/rating-star.svg'
-import saveFavorite from 'icons/favorite.svg'
+import download from 'icons/save.svg'
 import skipPrev from 'icons/skip-prev.svg'
 import table from 'icons/table.svg'
 import text from 'icons/text.svg'
-import vizIcon from 'icons/hierarchy-9.svg'
 
 const inactive = `
   color: #797979;
@@ -273,19 +276,37 @@ export const ErrorIcon = (): JSX.Element => (
   <IconContainer className="fa fa-file-text-o" text="Error" />
 )
 
+const ZOOM_ICONS_SIZE_IN_PX = 15
 export const ZoomInIcon = ({
   regulateSize
 }: {
   regulateSize: 1 | 2
 }): JSX.Element => (
-  <IconContainer regulateSize={regulateSize} className="sl-zoom-in" />
+  <IconContainer
+    icon={zoomInIcon}
+    width={regulateSize * ZOOM_ICONS_SIZE_IN_PX}
+  />
 )
 export const ZoomOutIcon = ({
   regulateSize
 }: {
   regulateSize: 1 | 2
 }): JSX.Element => (
-  <IconContainer regulateSize={regulateSize} className="sl-zoom-out" />
+  <IconContainer
+    icon={zoomOutIcon}
+    width={regulateSize * ZOOM_ICONS_SIZE_IN_PX}
+  />
+)
+
+export const ZoomToFitIcon = ({
+  regulateSize
+}: {
+  regulateSize: 1 | 2
+}): JSX.Element => (
+  <IconContainer
+    icon={fitToScreenIcon}
+    width={regulateSize * ZOOM_ICONS_SIZE_IN_PX}
+  />
 )
 
 export const BinIcon = (): JSX.Element => (
