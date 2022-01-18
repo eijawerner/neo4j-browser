@@ -161,7 +161,7 @@ const vizFn = function (
       .attr('transform', String(e.transform))
   }
 
-  const zoomBehavior = d3Zoom<SVGGElement, unknown>()
+  const zoomBehavior = d3Zoom<SVGElement, unknown>()
     .scaleExtent([0.1, 2])
     .on('zoom', zoomed)
 
@@ -182,7 +182,7 @@ const vizFn = function (
     isZoomClick = true
     const limitsReached = { zoomInLimit: false, zoomOutLimit: false }
 
-    zoomBehavior.scaleBy(baseGroup, isZoomingIn ? 1.3 : 0.7)
+    zoomBehavior.scaleBy(root, isZoomingIn ? 1.3 : 0.7)
 
     return limitsReached
   }
@@ -194,7 +194,7 @@ const vizFn = function (
     }
   })
 
-  baseGroup
+  root
     .call(zoomBehavior)
     .on('dblclick.zoom', null as any)
     // Single click is not panning
