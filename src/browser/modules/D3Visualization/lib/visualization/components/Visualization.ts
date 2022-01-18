@@ -21,7 +21,6 @@ import { D3DragEvent, drag as d3Drag } from 'd3-drag'
 import { easeCubic } from 'd3-ease'
 import { Simulation } from 'd3-force'
 import { BaseType, select as d3Select } from 'd3-selection'
-import * as d3Selection from 'd3-selection'
 import { Transition } from 'd3-transition'
 import { D3ZoomEvent, zoom as d3Zoom } from 'd3-zoom'
 import * as d3Zooming from 'd3-zoom'
@@ -160,7 +159,7 @@ const vizFn = function (
       const delta =
         -e.deltaY * (e.deltaMode === 1 ? 0.05 : e.deltaMode ? 1 : 0.002)
 
-      return zoomBehavior.scaleBy(baseGroup, 1 + delta)
+      return zoomBehavior.scaleBy(root, 1 + delta)
     }
   }
 
@@ -187,7 +186,7 @@ const vizFn = function (
       .attr('transform', String(e.transform))
   }
 
-  const zoomBehavior = d3Zoom<SVGGElement, unknown>()
+  const zoomBehavior = d3Zoom<SVGElement, unknown>()
     .scaleExtent([ZOOM_SCALE_MIN, ZOOM_SCALE_MAX])
     .on('zoom', zoomed)
   // .filter(((event: KeyboardEvent | MouseEvent) => event.shiftKey)) // shift eller musklick i
@@ -209,7 +208,7 @@ const vizFn = function (
     isZoomClick = true
     const limitsReached = { zoomInLimit: false, zoomOutLimit: false }
 
-    zoomBehavior.scaleBy(baseGroup, isZoomingIn ? 1.3 : 0.7)
+    zoomBehavior.scaleBy(root, isZoomingIn ? 1.3 : 0.7)
 
     return limitsReached
   }
@@ -244,7 +243,7 @@ const vizFn = function (
         Math.max(width / availableWidth, height / availableHeight)
 
       zoomBehavior.transform(
-        baseGroup,
+        root,
         d3Zooming.zoomIdentity
           .translate(0, 0)
           .scale(Math.min(scale, ZOOM_SCALE_MAX))
@@ -252,7 +251,7 @@ const vizFn = function (
     }
   }
 
-  baseGroup
+  root
     .call(zoomBehavior)
     .on('dblclick.zoom', null as any)
     // Single click is not panning
