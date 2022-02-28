@@ -76,12 +76,6 @@ module.exports = {
               chunks: 'all',
               enforce: true
             },
-            mdx: {
-              test: /[\\/]node_modules[\\/](@babel|@literal-jsx|@mdx-js|acorn|acorn-jsx|hast-util-raw|mdast-util-to-hast|remark-mdx|remark-parse)[\\/]/,
-              name: 'mdx',
-              chunks: 'all',
-              enforce: true
-            },
             'relate-by-ui': {
               test: /[\\/]node_modules[\\/](@relate-by-ui|semantic-ui-react)[\\/]/,
               name: 'relate-by-ui',
