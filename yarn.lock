@@ -1857,11 +1857,6 @@
   resolved "https://neo.jfrog.io/neo/api/npm/npm/@react-dnd/shallowequal/-/shallowequal-2.0.0.tgz#a3031eb54129f2c66b2753f8404266ec7bf67f0a"
   integrity sha1-owMetUEp8sZrJ1P4QEJm7Hv2fwo=
 
-"@scarf/scarf@^0.1.5":
-  version "0.1.8"
-  resolved "https://neo.jfrog.io/neo/api/npm/npm/@scarf/scarf/-/scarf-0.1.8.tgz#7e1e67563a9787de0d1779de96c1c4c84d22d16d"
-  integrity sha512-6iXObfLIy803IV2fikkxZoGuWduSVqlmOhU5mdak/9/k0x2ICdBvMh7p0D9Y36URlSkvv1CCn8TeZ5ZNiBkW5g==
-
 "@semantic-ui-react/event-stack@^3.1.0":
   version "3.1.1"
   resolved "https://neo.jfrog.io/neo/api/npm/npm/@semantic-ui-react/event-stack/-/event-stack-3.1.1.tgz#3263d17511db81a743167fe45281a24b3eb6b3c8"
@@ -2444,10 +2439,10 @@
   dependencies:
     "@types/react" "*"
 
-"@types/react-table@7.0.16":
-  version "7.0.16"
-  resolved "https://neo.jfrog.io/neo/api/npm/npm/@types/react-table/-/react-table-7.0.16.tgz#3db6518fe07d79c58213e2b959983b353ba59457"
-  integrity sha512-SDFRUnWWN16rL/N1bpV4GKp4EAoulmrHbHoWCNUldrqVBYI9m9o+sYqNPP2E5NVUW7HQJf15rHKFN13F6v49Uw==
+"@types/react-table@^7.7.10":
+  version "7.7.10"
+  resolved "https://neo.jfrog.io/neo/api/npm/npm/@types/react-table/-/react-table-7.7.10.tgz#ca8bb5420bfeae964ff61682f31f1cadfcfee726"
+  integrity sha512-yt7FHv/2cFsucStSWLBOB3OmsRZF08DvVHzz8Zg41B4tzRL6pQ+5VYvmhaR1dKS//tDG4UOJ1RQJPEINHYoRtg==
   dependencies:
     "@types/react" "*"
 
@@ -12023,12 +12018,10 @@ react-svg-inline@^2.1.1:
     classnames "^2.2.1"
     prop-types "^15.5.8"
 
-react-table@7.0.4:
-  version "7.0.4"
-  resolved "https://neo.jfrog.io/neo/api/npm/npm/react-table/-/react-table-7.0.4.tgz#456838661982c83c3682f156c59a41b4339a2120"
-  integrity sha512-Uqpj+VnUIvsNWNtNFD1z2i7OCHdlhoJtQt0DWx3XOkZnvDyI/eCghK8YBfA9mY4TW7vEgCDLaRCcREC/fmcx6Q==
-  dependencies:
-    "@scarf/scarf" "^0.1.5"
+react-table@^7.7.0:
+  version "7.7.0"
+  resolved "https://neo.jfrog.io/neo/api/npm/npm/react-table/-/react-table-7.7.0.tgz#e2ce14d7fe3a559f7444e9ecfe8231ea8373f912"
+  integrity sha512-jBlj70iBwOTvvImsU9t01LjFjy4sXEtclBovl3mTiqjz23Reu0DKnRza4zlLtOPACx6j2/7MrQIthIK1Wi+LIA==
 
 react-test-renderer@^17.0.2:
   version "17.0.2"

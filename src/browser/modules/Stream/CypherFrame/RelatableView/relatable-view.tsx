@@ -18,12 +18,21 @@ import { get, head, map, slice } from 'lodash-es'
 import { QueryResult, Record, isInt } from 'neo4j-driver'
 import React, { useMemo } from 'react'
 import { connect } from 'react-redux'
+import {
+  useTable,
+  useSortBy,
+  usePagination,
+  Column,
+  useResizeColumns,
+  useFlexLayout
+} from 'react-table'
 
 import {
   ClickableUrls,
   ClipboardCopier,
   WarningMessage
 } from 'neo4j-arc/common'
+import { Table } from '@neo4j-ndl/react'
 
 import { StyledStatsBar } from '../../styled'
 import {
@@ -62,8 +71,6 @@ type RelatableViewComponentProps = {
   updated?: number
 }
 export function RelatableViewComponent({
-  maxRows,
-  maxFieldItems,
   result
 }: RelatableViewComponentProps): JSX.Element | null {
   const records = useMemo(
@@ -71,20 +78,96 @@ export function RelatableViewComponent({
     [result]
   )
 
-  const columns = useMemo(
-    () => getColumns(records, Number(maxFieldItems)),
-    [records, maxFieldItems]
-  )
-  const data = useMemo(() => slice(records, 0, maxRows), [records, maxRows])
+  // const columns = useMemo(
+  //   () => getColumns(records, Number(maxFieldItems)),
+  //   [records, maxFieldItems]
+  // )
+  // const data = useMemo(() => slice(records, 0, maxRows), [records, maxRows])
+  //
+  // if (!arrayHasItems(columns)) {
+  //   return <RelatableBodyMessage result={result} maxRows={maxRows} />
+  // }
 
-  if (!arrayHasItems(columns)) {
-    return <RelatableBodyMessage result={result} maxRows={maxRows} />
+  // const tableProps = useTable(
+  //     {
+  //       columns: columns,
+  //       data: data,
+  //     } as any
+  // );
+
+  type TestDataFormat = {
+    name: string
+    age: number
+    cypherCommand: string
   }
+
+  /** Columns (can be defined out of the component to avoid useMemo) */
+  const exampleColumns: Column<TestDataFormat>[] = useMemo(
+    () => [
+      {
+        Header: 'Name (min width)',
+        accessor: 'name',
+        minWidth: 100
+      },
+      {
+        Header: 'Age',
+        accessor: 'age',
+        width: 30
+      },
+      {
+        Header: 'Command',
+        accessor: 'cypherCommand',
+        // eslint-disable-next-line react/display-name
+        Cell: ({ value }: { value: string }) => <code>{value}</code>
+      }
+    ],
+    []
+  )
+
+  const TEST_DATA: TestDataFormat[] = useMemo(
+    () => [
+      {
+        name: 'eija',
+        age: 123,
+        cypherCommand: 'MATCH (n) RETURN n LIMIT 5'
+      },
+      {
+        name: 'eija',
+        age: 123,
+        cypherCommand: 'MATCH (n) RETURN n LIMIT 5'
+      },
+      {
+        name: 'eija',
+        age: 123,
+        cypherCommand: 'MATCH (n) RETURN n LIMIT 5'
+      },
+      {
+        name: 'eija',
+        age: 123,
+        cypherCommand: 'MATCH (n) RETURN n LIMIT 5'
+      }
+    ],
+    []
+  )
+
+  const tableProps = useTable(
+    {
+      columns: exampleColumns,
+      data: TEST_DATA,
+      initialState: { pageSize: 5 },
+      autoResetGlobalFilter: false,
+      autoResetPage: false
+    } as any,
+    useSortBy,
+    // useBlockLayout,
+    useFlexLayout,
+    useResizeColumns,
+    usePagination
+  )
 
   return (
     <RelatableStyleWrapper>
-      {/* @ts-ignore */}
-      <Relatable basic columns={columns} data={data} />
+      <Table {...tableProps} />
     </RelatableStyleWrapper>
   )
 }

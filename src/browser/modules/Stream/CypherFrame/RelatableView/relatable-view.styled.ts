@@ -17,25 +17,26 @@
 import styled from 'styled-components'
 
 export const RelatableStyleWrapper = styled.div`
+  padding: 5px 10px;
   width: 100%;
-  /* semantic ui specificity... */
-  .relatable__table-row,
-  .relatable__table-row.relatable__table-header-row
-    .relatable__table-header-cell {
-    background-color: ${props => props.theme.frameBackground};
-    color: ${props => props.theme.secondaryText};
-  }
-  .relatable__table-row-number {
-    color: ${props => props.theme.preText};
-    background-color: ${props => props.theme.preBackground};
-  }
-  .relatable__table-header-row .relatable__table-cell {
-    border-bottom: ${props => props.theme.inFrameBorder};
-  }
-  .relatable__table-body-row .relatable__table-cell {
-    border-top: ${props => props.theme.inFrameBorder};
-    vertical-align: top;
-  }
+  // /* semantic ui specificity... */
+  // .relatable__table-row,
+  // .relatable__table-row.relatable__table-header-row
+  //   .relatable__table-header-cell {
+  //   background-color: ${props => props.theme.frameBackground};
+  //   color: ${props => props.theme.secondaryText};
+  // }
+  // .relatable__table-row-number {
+  //   color: ${props => props.theme.preText};
+  //   background-color: ${props => props.theme.preBackground};
+  // }
+  // .relatable__table-header-row .relatable__table-cell {
+  //   border-bottom: ${props => props.theme.inFrameBorder};
+  // }
+  // .relatable__table-body-row .relatable__table-cell {
+  //   border-top: ${props => props.theme.inFrameBorder};
+  //   vertical-align: top;
+  // }
 `
 
 export const StyledJsonPre = styled.pre`
