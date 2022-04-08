@@ -18,6 +18,14 @@ export const ChevronLeftIcon = (): JSX.Element => (
   <HeroIcon iconName="ChevronLeftIcon" type="solid" />
 )
 
+export const ChevronDownIcon = (): JSX.Element => (
+  <HeroIcon iconName="ChevronDownIcon" type="solid" />
+)
+
+export const ChevronUpIcon = (): JSX.Element => (
+  <HeroIcon iconName="ChevronUpIcon" type="solid" />
+)
+
 type WidthProps = { width?: number }
 export const CopyIcon = ({ width = SMALL_SIZE }: WidthProps): JSX.Element => (
   <HeroIcon

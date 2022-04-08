@@ -16,7 +16,7 @@
  */
 import { get, head, map, slice } from 'lodash-es'
 import { QueryResult, Record, isInt } from 'neo4j-driver'
-import React, { useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
 import { connect } from 'react-redux'
 import {
   useTable,
@@ -25,10 +25,13 @@ import {
   useResizeColumns,
   useFlexLayout,
   Row,
-  Cell
+  Cell,
+  useExpanded
 } from 'react-table'
 
 import {
+  ChevronDownIcon,
+  ChevronUpIcon,
   ClickableUrls,
   ClipboardCopier,
   WarningMessage
@@ -121,6 +124,7 @@ export function RelatableViewComponent({
     // useBlockLayout,
     useFlexLayout,
     useResizeColumns,
+    useExpanded,
     usePagination
   )
 
@@ -252,12 +256,44 @@ function getColumnsOld(
   )
 }
 
+const MAX_LENGTH_CELL = 50
+export const ELLIPSIS = '\u2026'
 type CypherCellProps = {
   cell: any
 }
 function CypherCell({ cell }: CypherCellProps) {
+  const [expanded, setExpanded] = useState<boolean>(false)
   const { value } = cell
-  return renderCell(value)
+
+  const handleClickExpanded = () => setExpanded(!expanded)
+  const stringValue = stringifyMod(value, stringModifier, false)
+  return (
+    <div style={{ display: 'flex', flexDirection: 'row', gap: '5px' }}>
+      {expanded || stringValue.length < MAX_LENGTH_CELL ? (
+        <>
+          {stringValue.length > MAX_LENGTH_CELL && (
+            <div
+              style={{ width: '20px', height: '20px' }}
+              onClick={handleClickExpanded}
+            >
+              <ChevronDownIcon />
+            </div>
+          )}
+          {renderCell(value)}
+        </>
+      ) : (
+        <>
+          <div
+            style={{ width: '20px', height: '20px' }}
+            onClick={handleClickExpanded}
+          >
+            <ChevronUpIcon />
+          </div>
+          {stringValue.slice(0, MAX_LENGTH_CELL) + ELLIPSIS}
+        </>
+      )}
+    </div>
+  )
 }
 
 const renderCell = (entry: any) => {
