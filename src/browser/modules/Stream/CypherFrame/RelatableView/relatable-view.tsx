@@ -20,11 +20,12 @@ import React, { useMemo } from 'react'
 import { connect } from 'react-redux'
 import {
   useTable,
-  useSortBy,
   usePagination,
   Column,
   useResizeColumns,
-  useFlexLayout
+  useFlexLayout,
+  Row,
+  Cell
 } from 'react-table'
 
 import {
@@ -39,7 +40,6 @@ import {
   getBodyAndStatusBarMessages,
   resultHasTruncatedFields
 } from '../helpers'
-import Relatable from './relatable'
 import {
   CopyIconAbsolutePositioner,
   RelatableStyleWrapper,
@@ -56,6 +56,7 @@ import {
 import { stringModifier } from 'services/bolt/cypherTypesFormatting'
 import { stringifyMod, unescapeDoubleQuotesForDisplay } from 'services/utils'
 import arrayHasItems from './relatable/utils/array-has-items'
+import styled from 'styled-components'
 
 const RelatableView = connect((state: GlobalState) => ({
   maxRows: getMaxRows(state),
@@ -80,8 +81,8 @@ export function RelatableViewComponent({
   )
 
   const data = useMemo(() => {
-    const test = Array<object>(10).fill({})
     console.log('records', records)
+    console.log('maxFieldItems', maxFieldItems)
     const headerKeys = getHeaderKeys(records)
     console.log('headerKeys', headerKeys)
     const data = getData(records, headerKeys)
@@ -89,12 +90,12 @@ export function RelatableViewComponent({
     if (data) {
       console.log('data', data)
       const numberOfRows = (data.get(headerKeys[0]) ?? []).length
-      const rowData = Array<object>(numberOfRows).fill({}) // init row array
+      const rowData = Array<object>(numberOfRows).fill({})
       for (let row = 0; row < numberOfRows; row++) {
         for (const headerKey of headerKeys) {
           const values = data.get(headerKey) ?? []
-          values.map((item: any) => {
-            // @ts-ignore
+          values.map((item: unknown) => {
+            /* @ts-ignore */
             rowData[row][headerKey] = item
           })
         }
@@ -104,75 +105,9 @@ export function RelatableViewComponent({
 
     console.log('dataForTable', dataForTable)
     return dataForTable
-  }, [result, maxFieldItems])
+  }, [records, maxFieldItems])
 
   const columns = useMemo(() => getColumns(records), [records])
-
-  if (!arrayHasItems(columns)) {
-    return <RelatableBodyMessage result={result} maxRows={records.length} />
-  }
-
-  // const tableProps = useTable(
-  //     {
-  //       columns: columns,
-  //       data: data,
-  //     } as any
-  // );
-
-  type TestDataFormat = {
-    name: string
-    age: number
-    cypherCommand: string
-  }
-
-  /** Columns (can be defined out of the component to avoid useMemo) */
-  const exampleColumns: Column<TestDataFormat>[] = useMemo(
-    () => [
-      {
-        Header: 'Name (min width)',
-        accessor: 'name',
-        minWidth: 100
-      },
-      {
-        Header: 'Age',
-        accessor: 'age',
-        width: 30
-      },
-      {
-        Header: 'Command',
-        accessor: 'cypherCommand',
-        // eslint-disable-next-line react/display-name
-        Cell: ({ value }: { value: string }) => <code>{value}</code>
-      }
-    ],
-    []
-  )
-
-  const TEST_DATA: TestDataFormat[] = useMemo(
-    () => [
-      {
-        name: 'eija',
-        age: 123,
-        cypherCommand: 'MATCH (n) RETURN n LIMIT 5'
-      },
-      {
-        name: 'eija',
-        age: 123,
-        cypherCommand: 'MATCH (n) RETURN n LIMIT 5'
-      },
-      {
-        name: 'eija',
-        age: 123,
-        cypherCommand: 'MATCH (n) RETURN n LIMIT 5'
-      },
-      {
-        name: 'eija',
-        age: 123,
-        cypherCommand: 'MATCH (n) RETURN n LIMIT 5'
-      }
-    ],
-    []
-  )
 
   const tableProps = useTable(
     {
@@ -182,19 +117,67 @@ export function RelatableViewComponent({
       autoResetGlobalFilter: false,
       autoResetPage: false
     } as any,
-    useSortBy,
+    // useSortBy,
     // useBlockLayout,
     useFlexLayout,
     useResizeColumns,
     usePagination
   )
 
+  if (!arrayHasItems(columns)) {
+    return <RelatableBodyMessage result={result} maxRows={records.length} />
+  }
+
+  const { getTableBodyProps, prepareRow, page } = tableProps
+
   return (
     <RelatableStyleWrapper>
-      <Table {...tableProps} />
+      <Table
+        {...tableProps}
+        body={
+          /* @ts-ignore yarn link issue */
+          <tbody {...getTableBodyProps()}>
+            {page.map((row: Row, index: number) => {
+              prepareRow(row)
+              const { key, ...restRowProps } = row.getRowProps() // to avoid complains on missing key
+              return (
+                /* @ts-ignore yarn link issue */
+                <StyledRow key={key} {...restRowProps}>
+                  <StyledRowIndex>{index + 1}</StyledRowIndex>
+                  {row.cells.map((cell: Cell) => {
+                    const { key, ...restCellProps } = cell.getCellProps() // to avoid complains on missing key
+                    return (
+                      /* @ts-ignore yarn link issue */
+                      <td key={key} {...restCellProps}>
+                        {cell.render('Cell')}
+                      </td>
+                    )
+                  })}
+                </StyledRow>
+              )
+            })}
+          </tbody>
+        }
+      />
     </RelatableStyleWrapper>
   )
 }
+
+const StyledRow = styled.tr`
+  background: lightblue;
+  padding: 5px;
+  margin: 5px;
+  position: relative;
+`
+
+const StyledRowIndex = styled.div`
+  font-size: 8px;
+  background: lightgrey;
+  position: absolute;
+  z-index: 1;
+  width: auto;
+  height: 10px;
+`
 
 const getHeaderKeys = (records: Record[]) => {
   const firstRecord = head(records)
@@ -236,7 +219,6 @@ const getData = (records: Record[], headerKeys: string[]) => {
       const recordData = record.get(key)
       const currentData = data.get(key) ?? []
       const newDataForKey = [...currentData, recordData]
-      // const newDataForKey = recordData
       data.set(key, newDataForKey)
     }
   }
