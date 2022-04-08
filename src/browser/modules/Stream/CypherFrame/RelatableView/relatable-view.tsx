@@ -53,9 +53,9 @@ import {
   getMaxFieldItems,
   getMaxRows
 } from 'project-root/src/shared/modules/settings/settingsDuck'
-import arrayHasItems from 'project-root/src/shared/utils/array-has-items'
 import { stringModifier } from 'services/bolt/cypherTypesFormatting'
 import { stringifyMod, unescapeDoubleQuotesForDisplay } from 'services/utils'
+import arrayHasItems from './relatable/utils/array-has-items'
 
 const RelatableView = connect((state: GlobalState) => ({
   maxRows: getMaxRows(state),
@@ -71,22 +71,46 @@ type RelatableViewComponentProps = {
   updated?: number
 }
 export function RelatableViewComponent({
-  result
+  result,
+  maxFieldItems
 }: RelatableViewComponentProps): JSX.Element | null {
   const records = useMemo(
     () => (result && 'records' in result ? result.records : []),
     [result]
   )
 
-  // const columns = useMemo(
-  //   () => getColumns(records, Number(maxFieldItems)),
-  //   [records, maxFieldItems]
-  // )
-  // const data = useMemo(() => slice(records, 0, maxRows), [records, maxRows])
-  //
-  // if (!arrayHasItems(columns)) {
-  //   return <RelatableBodyMessage result={result} maxRows={maxRows} />
-  // }
+  const data = useMemo(() => {
+    const test = Array<object>(10).fill({})
+    console.log('records', records)
+    const headerKeys = getHeaderKeys(records)
+    console.log('headerKeys', headerKeys)
+    const data = getData(records, headerKeys)
+    let dataForTable: object[] = []
+    if (data) {
+      console.log('data', data)
+      const numberOfRows = (data.get(headerKeys[0]) ?? []).length
+      const rowData = Array<object>(numberOfRows).fill({}) // init row array
+      for (let row = 0; row < numberOfRows; row++) {
+        for (const headerKey of headerKeys) {
+          const values = data.get(headerKey) ?? []
+          values.map((item: any) => {
+            // @ts-ignore
+            rowData[row][headerKey] = item
+          })
+        }
+      }
+      dataForTable = rowData
+    }
+
+    console.log('dataForTable', dataForTable)
+    return dataForTable
+  }, [result, maxFieldItems])
+
+  const columns = useMemo(() => getColumns(records), [records])
+
+  if (!arrayHasItems(columns)) {
+    return <RelatableBodyMessage result={result} maxRows={records.length} />
+  }
 
   // const tableProps = useTable(
   //     {
@@ -152,8 +176,8 @@ export function RelatableViewComponent({
 
   const tableProps = useTable(
     {
-      columns: exampleColumns,
-      data: TEST_DATA,
+      columns: columns,
+      data: data,
       initialState: { pageSize: 5 },
       autoResetGlobalFilter: false,
       autoResetPage: false
@@ -172,20 +196,78 @@ export function RelatableViewComponent({
   )
 }
 
-function getColumns(records: Record[], maxFieldItems: number) {
-  const keys = get(head(records), 'keys', [])
+const getHeaderKeys = (records: Record[]) => {
+  const firstRecord = head(records)
+  const keys = get(firstRecord, 'keys', [])
+  const headerKeys: string[] = map(keys, key => convertKeyToString(key))
+  return headerKeys
+}
 
-  return map(keys, key => ({
+const convertKeyToString = (key: string | number | symbol) => {
+  let keyString = 'unknown'
+  if (typeof key === 'string') {
+    keyString = key
+  } else if (typeof key === 'number') {
+    keyString = '' + key
+  } else if (typeof key === 'symbol') {
+    const keyStringOrUndefined = key.toString()
+    if (keyStringOrUndefined) {
+      keyString = 'symbol_' + keyStringOrUndefined
+    }
+  }
+  return keyString
+}
+
+const getColumns = (records: Record[]): Column<object>[] => {
+  const headerKeys = getHeaderKeys(records)
+
+  return headerKeys.map(key => ({
     Header: key,
-    accessor: (record: Record) => {
-      const fieldItem = record.get(key)
-
-      if (!Array.isArray(fieldItem)) return fieldItem
-
-      return slice(fieldItem, 0, maxFieldItems)
-    },
+    accessor: key,
     Cell: CypherCell
   }))
+}
+
+const getData = (records: Record[], headerKeys: string[]) => {
+  const data: Map<string, Array<object>> = new Map()
+
+  for (const record of records) {
+    for (const key of headerKeys) {
+      const recordData = record.get(key)
+      const currentData = data.get(key) ?? []
+      const newDataForKey = [...currentData, recordData]
+      // const newDataForKey = recordData
+      data.set(key, newDataForKey)
+    }
+  }
+
+  return data
+}
+
+function getColumnsOld(
+  records: Record[],
+  maxFieldItems: number
+): Column<object>[] {
+  const keys = get(head(records), 'keys', [])
+
+  return map(
+    keys,
+    key =>
+      ({
+        Header: key,
+        accessor: (record: Record) => {
+          const fieldItem = record.get(key)
+
+          let item = fieldItem
+          if (Array.isArray(fieldItem)) {
+            item = slice(fieldItem, 0, maxFieldItems)
+          }
+
+          return item
+        },
+        Cell: CypherCell
+      } as Column<object>)
+  )
 }
 
 type CypherCellProps = {
