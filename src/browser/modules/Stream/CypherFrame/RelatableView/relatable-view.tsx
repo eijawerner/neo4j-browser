@@ -34,6 +34,7 @@ import {
   ChevronUpIcon,
   ClickableUrls,
   ClipboardCopier,
+  deepEquals,
   WarningMessage
 } from 'neo4j-arc/common'
 import { Table } from '@neo4j-ndl/react'
@@ -60,6 +61,7 @@ import { stringModifier } from 'services/bolt/cypherTypesFormatting'
 import { stringifyMod, unescapeDoubleQuotesForDisplay } from 'services/utils'
 import arrayHasItems from './relatable/utils/array-has-items'
 import styled from 'styled-components'
+import memoizeOne from 'memoize-one'
 
 const RelatableView = connect((state: GlobalState) => ({
   maxRows: getMaxRows(state),
@@ -74,43 +76,27 @@ type RelatableViewComponentProps = {
   result: BrowserRequestResult
   updated?: number
 }
+
+const memoizedGetRows = memoizeOne(
+  (res: QueryResult) => res.records.map(r => r.toObject()),
+  (newArgs, lastArgs) => deepEquals(newArgs[0].summary, lastArgs[0].summary)
+)
+
 export function RelatableViewComponent({
   result,
   maxFieldItems
 }: RelatableViewComponentProps): JSX.Element | null {
-  const records = useMemo(
-    () => (result && 'records' in result ? result.records : []),
-    [result]
-  )
+  // TODo get proper type from react table
+  let data: any[] = []
+  let columns: any[] = []
+  if (result && 'records' in result) {
+    const records = result.records
 
-  const data = useMemo(() => {
-    console.log('records', records)
-    console.log('maxFieldItems', maxFieldItems)
-    const headerKeys = getHeaderKeys(records)
-    console.log('headerKeys', headerKeys)
-    const data = getData(records, headerKeys)
-    let dataForTable: object[] = []
-    if (data) {
-      console.log('data', data)
-      const numberOfRows = (data.get(headerKeys[0]) ?? []).length
-      const rowData = Array<object>(numberOfRows).fill({})
-      for (let row = 0; row < numberOfRows; row++) {
-        for (const headerKey of headerKeys) {
-          const values = data.get(headerKey) ?? []
-          values.map((item: unknown) => {
-            /* @ts-ignore */
-            rowData[row][headerKey] = item
-          })
-        }
-      }
-      dataForTable = rowData
-    }
+    console.log(maxFieldItems)
 
-    console.log('dataForTable', dataForTable)
-    return dataForTable
-  }, [records, maxFieldItems])
-
-  const columns = useMemo(() => getColumns(records), [records])
+    data = memoizedGetRows(result)
+    columns = getColumns(records)
+  }
 
   const tableProps = useTable(
     {
@@ -129,7 +115,7 @@ export function RelatableViewComponent({
   )
 
   if (!arrayHasItems(columns)) {
-    return <RelatableBodyMessage result={result} maxRows={records.length} />
+    return <RelatableBodyMessage result={result} maxRows={data.length} />
   }
 
   const { getTableBodyProps, prepareRow, page } = tableProps
@@ -174,7 +160,7 @@ const StyledRow = styled.tr`
   position: relative;
 `
 
-const StyledRowIndex = styled.div`
+const StyledRowIndex = styled.td`
   font-size: 8px;
   background: lightgrey;
   position: absolute;
@@ -216,6 +202,17 @@ const getColumns = (records: Record[]): Column<object>[] => {
 }
 
 const getData = (records: Record[], headerKeys: string[]) => {
+  /*
+  [{a: 1, b: 2},
+   {a: 34, b: 3432}]
+   och bli
+
+   {a: [1,34], b: [2, 3432]} 
+
+   fast en map ist för ett obj
+
+  
+  */
   const data: Map<string, Array<object>> = new Map()
 
   for (const record of records) {
@@ -227,7 +224,34 @@ const getData = (records: Record[], headerKeys: string[]) => {
     }
   }
 
-  return data
+  let dataForTable: object[] = []
+  console.log('data', data)
+
+  /* 
+  och sen så skapar vi
+  [
+    {a: 1, b: 2},
+    {a: 34, b: 3432},
+  ]
+  
+  */
+
+  const numberOfRows = (data.get(headerKeys[0]) ?? []).length
+  // typ samma som records.length
+
+  const rowData = Array<object>(numberOfRows).fill({})
+  for (let row = 0; row < numberOfRows; row++) {
+    for (const headerKey of headerKeys) {
+      const values = data.get(headerKey) ?? []
+      values.map((item: unknown) => {
+        /* @ts-ignore */
+        rowData[row][headerKey] = item
+      })
+    }
+  }
+  dataForTable = rowData
+
+  return dataForTable
 }
 
 function getColumnsOld(
